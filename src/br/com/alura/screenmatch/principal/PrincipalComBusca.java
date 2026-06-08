@@ -18,6 +18,7 @@ public class PrincipalComBusca {
     static void main(String[] args) throws IOException, InterruptedException {
         Scanner sc = new Scanner(System.in);
         System.out.println("Digite o nome do filme: ");
+        String api_key = System.getenv("API_KEY");
         String busca = sc.nextLine();
         //para corrigir inserção de espaço no nome do filme;
         String busca_corrigida = busca.replace(' ', '+');
@@ -26,24 +27,33 @@ public class PrincipalComBusca {
         String termo = URLEncoder.encode(busca, StandardCharsets.UTF_8);
 
         System.out.println(termo);
+        try {
 
-        System.out.println(busca_corrigida);
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(String.format("http://www.omdbapi.com/?t=%S&apikey=41aa0740", termo)))
-                .build();
 
-        HttpResponse<String> response = client
-                .send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println(busca_corrigida);
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(String.format("http://www.omdbapi.com/?t=%S&apikey=%s", termo, api_key)))
+                    .build();
 
-        System.out.println(response.body());
+            HttpResponse<String> response = client
+                    .send(request, HttpResponse.BodyHandlers.ofString());
 
-        Gson gson = new Gson();
+            System.out.println(response.body());
 
-        Titulo meutitulo = gson.fromJson(response.body(), Titulo.class);
+            Gson gson = new Gson();
 
-        System.out.println(meutitulo.getNome());
+            Titulo meutitulo = gson.fromJson(response.body(), Titulo.class);
+            if (meutitulo.getNome() == null) {
+                System.out.println("Filme não encontrado");
+            } else {
+                System.out.println(meutitulo.getNome());
+            }
 
+        } catch (Exception e) {
+            System.out.println("Entrou aqui" );
+            System.out.println(e.getMessage());
+        }
         sc.close();
 
 
