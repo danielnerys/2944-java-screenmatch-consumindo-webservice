@@ -1,7 +1,10 @@
 package br.com.alura.screenmatch.principal;
 
 import br.com.alura.screenmatch.modelos.Titulo;
+import br.com.alura.screenmatch.modelos.TituloOmdb;
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.net.URI;
@@ -39,19 +42,25 @@ public class PrincipalComBusca {
             HttpResponse<String> response = client
                     .send(request, HttpResponse.BodyHandlers.ofString());
 
+            String json = response.body();
+
             System.out.println(response.body());
 
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder()
+                    .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+                    .create();
 
-            Titulo meutitulo = gson.fromJson(response.body(), Titulo.class);
-            if (meutitulo.getNome() == null) {
-                System.out.println("Filme não encontrado");
-            } else {
-                System.out.println(meutitulo.getNome());
-            }
+//            Titulo meutitulo = gson.fromJson(response.body(), Titulo.class);
+
+            TituloOmdb meutituloOmdb = gson.fromJson(json, TituloOmdb.class);
+
+            Titulo meuTitulo = new Titulo(meutituloOmdb);
+
+            System.out.println(meuTitulo);
+
 
         } catch (Exception e) {
-            System.out.println("Entrou aqui" );
+            System.out.println("Entrou aqui");
             System.out.println(e.getMessage());
         }
         sc.close();
